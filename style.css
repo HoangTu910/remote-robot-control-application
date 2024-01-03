@@ -1,0 +1,99 @@
+.text {
+    font-family: 'Microsoft YaHei', Arial, sans-serif;
+}
+
+.content-cont{
+    max-height: 180px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 50px;
+    background-color: lightblue;
+}
+
+.app-cont{
+    height: 550px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: lightblue;
+}
+.display-cont{
+    height: 480px;
+    width: 980px;
+    display: flex;
+    justify-content: center;
+    background-color: blueviolet;
+    margin-right: 10px;
+    flex-direction: column;
+}
+
+.config-cont{
+    height: 480px;
+    width: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: orange;
+    margin-left: 10px;
+    flex-direction: column;
+}
+
+.robot-cam{
+    height: 250px;
+    width: 475px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    margin-right: 10px;
+}
+
+.user-cam{
+    height: 250px;
+    width: 475px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: gray;
+}
+
+.bar-cont{
+    height: 120px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: yellow;
+    margin-top: 25px    ;
+}
+
+.cam-cont{
+    height: 250px;
+    width: 980px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: orange;   
+}
+
+.connect-robot{
+    height: 200px;
+    width: 350px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: yellow; 
+}
+
+.setup-robot{
+    margin-top: 10px;
+    height: 260px;
+    width: 350px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white; 
+}

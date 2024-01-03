@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Robot Control</title>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                url: "/video_feed",  // Flask route to access video stream
+                success: function (data) {
+                    $(.user-cam").html(data);
+                }
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div class="content-cont">
+        <h1 class="text">REMOTE ARDUINO CAR USING HAND GESTURE</h1>
+    </div>
+
+    <div class="app-cont">
+        <div class="config-cont">
+            <div class="connect-robot">
+                <p>connect-robot</p>
+            </div>
+
+            <div class="setup-robot">
+                <p>setup-robot</p>
+            </div>
+        </div>
+        <div class="display-cont">
+            <div class="cam-cont">
+                <div class="robot-cam">
+                    <p>Robot</p>
+                </div>
+                <div class="user-cam">
+                    <p>User</p>
+                </div>
+            </div>
+
+            <div class="bar-cont">
+                <div class="sign-image">
+                    <p>Sign</p>
+                </div>
+                <div class="button">
+                    <p>Button</p>
+                </div>
+                <div class="data-receive">
+                    <p>Data</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <button onclick="window.location.href='/on'">Turn On LED</button>
+    <button onclick="window.location.href='/off'">Turn Off LED</button> -->
+</body>
+</html>

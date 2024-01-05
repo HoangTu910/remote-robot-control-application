@@ -1,3 +1,4 @@
+
 .text {
     font-family: 'Microsoft YaHei', Arial, sans-serif;
 }
@@ -54,6 +55,8 @@
 .user-cam{
     height: 250px;
     width: 475px;
+    position: relative;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -66,7 +69,7 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    background-color: yellow;
+    background-color: white;
     margin-top: 25px    ;
 }
 
@@ -83,9 +86,17 @@
     height: 200px;
     width: 350px;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
     background-color: yellow; 
+}
+
+.robot-image{
+    height: 200px;
+    width: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .setup-robot{
@@ -93,7 +104,57 @@
     height: 260px;
     width: 350px;
     display: flex;
-    justify-content: center;
+    flex-direction:column;
+    justify-content: space-around;
     align-items: center;
     background-color: white; 
+}
+
+.robot-setup{
+    height: 200px;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.image{
+    width: 80px;
+    height: 80px;
+}
+.image-robot{
+    width: 220px;
+    height: 150px;
+}
+
+.form-cont{
+    height: 140px;
+    width: 200px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: column;
+}
+
+.flash-message {
+  position: relative;
+}
+.close-flash {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1;
+  opacity: 0.5;
+  transition: opacity 0.3s;
+}
+.close-flash:hover {
+  opacity: 1;
+}
+.group{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: column;
 }

@@ -1,6 +1,7 @@
 
 .text {
     font-family: 'Microsoft YaHei', Arial, sans-serif;
+    color: white;
 }
 
 .content-cont{
@@ -9,8 +10,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 50px;
-    background-color: lightblue;
+    margin-top:50px;
 }
 
 .app-cont{
@@ -19,27 +19,27 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: lightblue;
 }
+
 .display-cont{
     height: 480px;
-    width: 980px;
+    width: 1020px;
     display: flex;
-    justify-content: center;
-    background-color: blueviolet;
-    margin-right: 10px;
+    justify-content: space-around;
     flex-direction: column;
+    padding-left: 16px;
+    margin-right: 10px
 }
 
 .config-cont{
-    height: 480px;
-    width: 400px;
+    height: 510px;
+    width: 380px;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: orange;
     margin-left: 10px;
     flex-direction: column;
+    border-radius: 10px;
 }
 
 .robot-cam{
@@ -50,6 +50,8 @@
     align-items: center;
     background-color: white;
     margin-right: 10px;
+    border: 10px solid silver;
+    border-radius: 10px;
 }
 
 .user-cam{
@@ -61,25 +63,26 @@
     justify-content: center;
     align-items: center;
     background-color: gray;
+    border: 10px solid silver;
+    border-radius: 10px;
 }
 
 .bar-cont{
     height: 120px;
-    width: 100%;
+    width: 980px;
     display: flex;
     justify-content: space-around;
     align-items: center;
     background-color: white;
-    margin-top: 25px    ;
+    border-radius: 10px;
 }
 
 .cam-cont{
-    height: 250px;
+    height: 270px;
     width: 980px;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: orange;   
 }
 
 .connect-robot{
@@ -88,7 +91,11 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    background-color: yellow; 
+    background-image: url("/static/Image/AI.jpg");
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 5px;
+    border-radius: 15px;
 }
 
 .robot-image{
@@ -107,7 +114,8 @@
     flex-direction:column;
     justify-content: space-around;
     align-items: center;
-    background-color: white; 
+    background-color: white;
+    border-radius: 15px;
 }
 
 .robot-setup{

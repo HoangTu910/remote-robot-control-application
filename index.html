@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <style>
+        body {
+            background-image: url("/static/Image/pc.jpg");
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
     <title>Robot Control</title>
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
     <script src="{{url_for('static', filename='javascript/script.js')}}"></script>
@@ -14,6 +21,33 @@
         rangeInput.addEventListener('input', () => {
           rangeValue.textContent = String(rangeInput.value);
         });
+
+
+    </script>
+    <script>
+        function updateImage() {
+            fetch('/get_image_source')
+                .then(response => response.text())
+                .then(imageSrc => {
+                    var dynamicImage = document.getElementById('sign-img');
+                    dynamicImage.src = imageSrc;
+                });
+        }
+
+        function updateData() {
+            fetch('/get_data')
+                .then(response => response.text())
+                .then(data => {
+                    var dataElement = document.getElementById('data');
+                    dataElement.textContent = data;
+                });
+        }
+        window.onload = function() {
+            updateImage();
+            updateData();
+            setInterval(updateImage, 500);
+            setInterval(updateData, 500);
+        };
     </script>
 </head>
 
@@ -37,8 +71,8 @@
           });
         });
       </script>
-    <div class="content-cont">
-        <h1 class="text">REMOTE ARDUINO CAR USING HAND GESTURE</h1>
+    <div style="margin-top:50px" class="content-cont">
+        <h1 class="text">REMOTE ROBOT CONTROL USING HAND GESTURE</h1>
     </div>
     <div class="app-cont">
         <div class="config-cont">
@@ -67,20 +101,25 @@
 
             <div class="setup-robot">
                 <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                  <span style="color: gray" id="port" class="badge badge-pill badge-dark">{{ com_port }}</span>
-                  <span style="color: gray" id="baud" class="badge badge-pill badge-dark">{{ baud_rate }}</span>
+                  <span style="color: gray" id="port" class="badge badge-pill badge-dark">PORT: {{ com_port }}</span>
+                  <span style="color: gray" id="baud" class="badge badge-pill badge-dark">BAUD: {{ baud_rate }}</span>
+                  <span style="color: gray" id="speed" class="badge badge-pill badge-dark">SPD: {{ slider }}</span>
+                  <span style="color: gray" id="mode" class="badge badge-pill badge-dark">MODE: {{ control_mode }}</span>
                 </div>
                 <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                  <button id="lock-btn" type="button" class="btn btn-danger">LOCK</button>
-                  <button id="ai-btn" type="button" class="btn btn-warning">AI CONTROL</button>
-                  <button id="spin-btn" type="button" class="btn btn-success">AUTO SPIN</button>
+                  <button onclick="window.location.href='/lock_click'" id="lock-btn" type="button" class="btn btn-danger">LOCK</button>
+                  <button onclick="window.location.href='/ai_click'" id="ai-btn" type="button" class="btn btn-warning">AI CONTROL</button>
+                  <button onclick="window.location.href='/spin_click'" id="spin-btn" type="button" class="btn btn-success">AUTO SPIN</button>
                 </div>
-                <div>
-                    <label style="color: DeepSkyBlue " for="customRange3" class="form-label">Speed (PWM)</label>
-                    <input type="range" value="0" class="form-range" min="0" max="255" step="1" id="customRange3" oninput="this.nextElementSibling.value = this.value">
-                    <output style="color: DeepSkyBlue  ; font-weight: bold">0</output>
-                </div>
-                <button type="button" class="btn btn-outline-success">START</button>
+                <form action="/start" method="post" style="display: flex; align-items: center; flex-direction:column;">
+                    <div>
+                        <label style="color: DeepSkyBlue " for="customRange3" class="form-label">Speed (PWM)</label>
+                        <input name = "slider" type="range" value="0" class="form-range" min="0" max="255" step="1" id="customRange3" oninput="this.nextElementSibling.value = this.value">
+                        <output style="color: DeepSkyBlue  ; font-weight: bold">0</output>
+                    </div>
+                    <button type="submit" class="btn btn-outline-success">START</button>
+                </form>
+
             </div>
         </div>
         <div class="display-cont">
@@ -95,13 +134,13 @@
 
             <div class="bar-cont">
                 <div class="sign-image">
-                    <img src="{{ url_for('static', filename='Image/right.png') }}" class="image">
+                    <img id="sign-img" src="{{ url_for('static', filename='Image/right.png') }}" class="image">
                 </div>
                 <div class="button">
                     <button style="color: white" type="button" class="btn btn-info">Hand Sign Tutorial</button>
                 </div>
                 <div class="data-receive">
-                    <p>Data</p>
+                    <p id="data">Data Received</p>
                 </div>
             </div>
         </div>

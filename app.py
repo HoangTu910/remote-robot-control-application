@@ -1,20 +1,24 @@
-from flask import Flask, render_template, request, flash, jsonify
+from flask import Flask, render_template, request, flash, jsonify, redirect, url_for, session
 from flask import Response
 from serial.tools import list_ports
 import serial
+from cvzone.HandTrackingModule import HandDetector
+from cvzone.ClassificationModule import Classifier
+import numpy as np
+import math
+import arduino as arduino
 # import cv2
 import cv2
-# from cvzone.HandTrackingModule import HandDetector
-# from cvzone.ClassificationModule import Classifier
-# import numpy as np
-# import math
 
 app=Flask(__name__,template_folder='template',static_folder='static')
 app.secret_key = 'your_secret_key'
-led_state = False
-camera = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0)
 com_port = 'init'
 baud_rate = 0
+speed = 0
+index = 10
+control_mode = 'ai'
+
 
 def toggle_led():
   global led_state
@@ -24,38 +28,160 @@ def toggle_led():
     arduino.write(b'1')
   led_state = not led_state
 
+
 def generate_frames():
+    detector = HandDetector(maxHands=1)
+    classifier = Classifier("Model/keras_model.h5", "Model/labels.txt")
+    offset = 20
+    imgSize = 300
+    global index
     while True:
-        success, frame = camera.read()
+        success, frame = cap.read()
+        success2, img = cap.read()
+        hands, img = detector.findHands(img)
         ret, buffer = cv2.imencode('.jpg', frame)
         frame = buffer.tobytes()
-
+        if hands:
+            hand = hands[0]
+            x, y, w, h = hand['bbox']
+            imgWhite = np.ones((imgSize, imgSize, 3), np.uint8)*255
+            try:
+                imgCrop = img[y-offset:y+h+offset, x-offset:x+w+offset]
+                try:
+                    aspect_ratio = h/w
+                    if aspect_ratio > 1:
+                        prev_aspect = h/w
+                        new_witdh = math.ceil(imgSize / prev_aspect)
+                        imgResize = cv2.resize(imgCrop, (new_witdh, imgSize))
+                        y_remain = math.ceil((imgWhite.shape[1] - imgResize.shape[1])/2)
+                        imgWhite[0:imgResize.shape[0], y_remain:imgResize.shape[1]+y_remain] = imgResize
+                        prediction, index = classifier.getPrediction(imgWhite, draw=False)
+                    else:
+                        prev_aspect = h / w
+                        new_height = math.ceil(imgSize * prev_aspect)
+                        imgResize = cv2.resize(imgCrop, (imgSize, new_height))
+                        x_remain = math.ceil((imgWhite.shape[0] - imgResize.shape[0]) / 2)
+                        imgWhite[x_remain:imgResize.shape[0]+x_remain, 0:imgResize.shape[1]] = imgResize
+                        prediction, index = classifier.getPrediction(imgWhite, draw=False)
+                    print(index)
+                except:
+                    print("Out of imgWhite")
+            except:
+                print("Out of imgCrop")
         yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
 
 @app.route('/')
 def index():
   return render_template('index.html')
+
+
+@app.route('/index_baud')
+def index_baud():
+  return render_template('index.html', com_port=com_port, baud_rate=baud_rate)
+
 
 @app.route('/on')
 def led_on():
   toggle_led()
   return "LED turned on!"
 
+
 @app.route('/off')
 def led_off():
   toggle_led()
   return "LED turned off!"
 
+
 @app.route('/video')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+
+@app.route('/lock_click')
+def get_lock_click():
+    global control_mode
+    control_mode = 'lock'
+    return '', 204
+
+
+@app.route('/ai_click')
+def get_ai_click():
+    global control_mode
+    control_mode = 'ai'
+    return '', 204
+
+
+@app.route('/spin_click')
+def get_spin_click():
+    global control_mode
+    control_mode = 'spin'
+    return '', 204
+
+
+@app.route('/get_image_source')
+def get_image_source():
+    global index
+    if index == 0:
+        image_src = "/static/Image/forward.png"
+    elif index == 1:
+        image_src = "/static/Image/stop.png"
+    elif index == 2:
+        image_src = "/static/Image/right.png"
+    else:
+        image_src = "/static/Image/left.png"
+    return image_src
+
+
+@app.route('/get_data')
+def get_data():
+    global index
+    if index == 0:
+        data = "Robot nhận tín hiệu 'forward'"
+    elif index == 1:
+        data = "Robot nhận tín hiệu 'stop'"
+    elif index == 2:
+        data = "Robot nhận tín hiệu 'right'"
+    elif index == 3:
+        data = "Robot nhận tín hiệu 'left'"
+    else:
+        data = "Chờ tín hiệu từ người dùng !"
+    return data
+
+
+@app.route('/start', methods=['GET', 'POST'])
+def handle_setup():
+    global control_mode
+    session['slider'] = (request.form.get('slider'))
+    speed = session.get('slider')
+    speed = int(speed)
+    print(type(speed))
+    com_port = session.get('com_port')
+    baud_rate = session.get('baud_rate')
+    arduino.get_speed(speed)
+    modes = {
+        'ai': 'AI',
+        'lock': 'LOCK',
+        'spin': 'SPIN'
+    }
+    mode_text = modes.get(control_mode, 'MODE')
+    # if control_mode == 'ai':
+    #     print('AI MODE')
+    # elif control_mode == 'lock':
+    #     print('LOCK MODE')
+    # elif control_mode == 'spin':
+    #     print('SPIN MODE')
+    # else:
+    #     print('MODE')
+    return render_template('index.html', slider=speed, com_port=com_port, baud_rate=baud_rate, control_mode=mode_text)
+
+
 @app.route('/pair', methods=['GET', 'POST'])
 def pair():
-
-  com_port = request.form.get('comPort')
-  baud_rate = request.form.get('baudRate')
-
+  session['com_port'] = request.form.get('comPort')
+  session['baud_rate'] = request.form.get('baudRate')
+  com_port = session.get('com_port')
+  baud_rate = session.get('baud_rate')
   if not com_port:
     flash("COM PORT is required")
     return render_template('index.html')
@@ -64,7 +190,6 @@ def pair():
     flash("BAUD RATE is required")
     return render_template('index.html')
 
-  # Convert baud rate to int
   baud_rate = int(baud_rate)
   available_ports = [port.device for port in list_ports.comports()]
   arduino_connected = False
@@ -72,14 +197,62 @@ def pair():
     flash("Undefined COM PORT")
     return render_template('index.html')
   try:
-    arduino = serial.Serial(com_port, baud_rate)
+    arduino.get_comport(com_port)
     arduino_connected = True
     flash("Connect Successful !")
     return render_template('index.html', com_port=com_port, baud_rate=baud_rate)
   except serial.SerialException:
     flash("Invalid COM PORT or BAUD RATE")
 
+
 if __name__ == '__main__':
   app.run(host='0.0.0.0')
 
 
+# cap = cv2.VideoCapture(0)
+# detector = HandDetector(maxHands=1)
+# classifier = Classifier("Model/keras_model.h5", "Model/labels.txt")
+# offset = 20
+# imgSize = 300
+# counter = 0
+# folder = "images/Turn Left"
+# labels = ["Forward", "Stop","TRight", "TLeft", "Backward"]
+# while True:
+#     success, img = cap.read()
+#     hands = detector.findHands(img, draw=False)
+#
+#     if hands:
+#         hand = hands[0]
+#         x, y, w, h = hand['bbox']
+#         imgWhite = np.ones((imgSize, imgSize, 3), np.uint8)*255
+#
+#         try:
+#             imgCrop = img[y-offset:y+h+offset, x-offset:x+w+offset]
+#             try:
+#                 aspect_ratio = h/w
+#                 if aspect_ratio > 1:
+#                     prev_aspect = h/w
+#                     new_witdh = math.ceil(imgSize / prev_aspect)
+#                     imgResize = cv2.resize(imgCrop, (new_witdh, imgSize))
+#                     y_remain = math.ceil((imgWhite.shape[1] - imgResize.shape[1])/2)
+#                     imgWhite[0:imgResize.shape[0], y_remain:imgResize.shape[1]+y_remain] = imgResize
+#                     prediction, index = classifier.getPrediction(imgWhite, draw=False)
+#                 else:
+#                     prev_aspect = h / w
+#                     new_height = math.ceil(imgSize * prev_aspect)
+#                     imgResize = cv2.resize(imgCrop, (imgSize, new_height))
+#                     x_remain = math.ceil((imgWhite.shape[0] - imgResize.shape[0]) / 2)
+#                     imgWhite[x_remain:imgResize.shape[0]+x_remain, 0:imgResize.shape[1]] = imgResize
+#                     prediction, index = classifier.getPrediction(imgWhite, draw=False)
+#                 cv2.imshow("imgWhite", imgWhite)
+#                 cv2.putText(img, labels[index], (x, y-20), cv2.FONT_HERSHEY_COMPLEX, 2, (255,0,255), 2)
+#             except:
+#                 print("Out of imgWhite")
+#                 arduino.stop()
+#         except:
+#             print("Out of imgCrop")
+#             arduino.stop()
+#     else:
+#         arduino.stop()
+#     cv2.imshow("Image", img)
+#     key = cv2.waitKey(1)

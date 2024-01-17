@@ -72,7 +72,7 @@
         });
       </script>
     <div style="margin-top:50px" class="content-cont">
-        <h1 class="text">REMOTE ROBOT CONTROL USING HAND GESTURE</h1>
+        <h1 class="text"><b>REMOTE ROBOT CONTROL USING HAND GESTURE</b></h1>
     </div>
     <div class="app-cont">
         <div class="config-cont">
@@ -137,8 +137,27 @@
                     <img id="sign-img" src="{{ url_for('static', filename='Image/right.png') }}" class="image">
                 </div>
                 <div class="button">
-                    <button style="color: white" type="button" class="btn btn-info">Hand Sign Tutorial</button>
+                    <button style="color: white" type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModalCenter">Hand Sign Tutorial</button>
+                    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalCenterTitle">HOW TO USE</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div style ="display:flex; justify-content:center" class="modal-body">
+                            <img src="{{ url_for('static', filename='Image/tutorial.png') }}" class="image-tutorial">
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                 </div>
+
                 <div class="data-receive">
                     <p id="data">Data Received</p>
                 </div>

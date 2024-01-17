@@ -166,3 +166,7 @@
     align-items: center;
     flex-direction: column;
 }
+.image-tutorial{
+    width: 450px;
+    height: 450px;
+}

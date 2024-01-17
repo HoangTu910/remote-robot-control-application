@@ -24,6 +24,7 @@ index = 10
 control_mode = 'ai'
 board = ''
 start = 0
+arduino_data = None
 
 def toggle_led():
   global led_state
@@ -40,6 +41,9 @@ def generate_frames():
     offset = 20
     imgSize = 300
     global index
+    global board
+    global start
+    global arduino_data
     while True:
         success, frame = cap.read()
         success2, img = cap.read()
@@ -69,6 +73,10 @@ def generate_frames():
                         imgWhite[x_remain:imgResize.shape[0]+x_remain, 0:imgResize.shape[1]] = imgResize
                         prediction, index = classifier.getPrediction(imgWhite, draw=False)
                     print(index)
+                    if start == 1:
+                        arduino_data.write(str(index).encode())
+                        Received = arduino_data.readline()
+                        print(Received)
                 except:
                     print("Out of imgWhite")
             except:
@@ -171,6 +179,7 @@ def get_lock_click():
 def get_ai_click():
     global control_mode
     control_mode = 'ai'
+
     return '', 204
 
 
@@ -218,6 +227,7 @@ def handle_setup():
     global board
     global start
     global speed_get
+    start_click = 'start';
     start = 1
     session['slider'] = (request.form.get('slider'))
     speed = session.get('slider')
@@ -233,13 +243,14 @@ def handle_setup():
         'spin': 'SPIN'
     }
     mode_text = modes.get(control_mode, 'MODE')
-    thread_run()
+    # thread_run()
     return render_template('index.html', slider=speed, com_port=com_port, baud_rate=baud_rate, control_mode=mode_text)
 
 
 @app.route('/pair', methods=['GET', 'POST'])
 def pair():
   global board
+  global arduino_data
   session['com_port'] = request.form.get('comPort')
   session['baud_rate'] = request.form.get('baudRate')
   com_port = session.get('com_port')
@@ -259,7 +270,7 @@ def pair():
     flash("Undefined COM PORT")
     return render_template('index.html')
   try:
-    board = pyfirmata.ArduinoMega(com_port)
+    arduino_data = serial.Serial(com_port, baud_rate)
     flash("Connect Successful !")
     return render_template('index.html', com_port=com_port, baud_rate=baud_rate)
   except serial.SerialException:
@@ -269,6 +280,3 @@ def pair():
 if __name__ == '__main__':
 
   app.run(host='0.0.0.0')
-
-
-

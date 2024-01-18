@@ -21,7 +21,8 @@ baud_rate = 0
 speed = 0
 speed_get = 0
 index = 10
-control_mode = 'ai'
+control_mode = 4
+control_label = 'ai'
 board = ''
 start = 0
 arduino_data = None
@@ -171,22 +172,27 @@ def video_feed():
 @app.route('/lock_click')
 def get_lock_click():
     global control_mode
-    control_mode = 'lock'
+    global control_label
+    control_mode = 6
+    control_label = 'lock'
     return '', 204
 
 
 @app.route('/ai_click')
 def get_ai_click():
     global control_mode
-    control_mode = 'ai'
-
+    global control_label
+    control_mode = 4
+    control_label = 'ai'
     return '', 204
 
 
 @app.route('/spin_click')
 def get_spin_click():
     global control_mode
-    control_mode = 'spin'
+    global control_label
+    control_mode = 5
+    control_label = 'spin'
     return '', 204
 
 
@@ -227,7 +233,11 @@ def handle_setup():
     global board
     global start
     global speed_get
+    global control_label
     start_click = 'start';
+    arduino_data.write(str(control_mode).encode())
+    Received = arduino_data.readline()
+    print(Received)
     start = 1
     session['slider'] = (request.form.get('slider'))
     speed = session.get('slider')
@@ -242,7 +252,7 @@ def handle_setup():
         'lock': 'LOCK',
         'spin': 'SPIN'
     }
-    mode_text = modes.get(control_mode, 'MODE')
+    mode_text = modes.get(control_label, 'MODE')
     # thread_run()
     return render_template('index.html', slider=speed, com_port=com_port, baud_rate=baud_rate, control_mode=mode_text)
 
